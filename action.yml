@@ -1,0 +1,43 @@
+name: CodeGuard AI Review
+description: AI-powered code review for pull requests using OpenAI GPT-4o
+
+inputs:
+  github-token:
+    description: GitHub token for API access
+    required: true
+  openai-api-key:
+    description: OpenAI API key for GPT-4o
+    required: true
+  model:
+    description: OpenAI model to use
+    required: false
+    default: gpt-4o
+  max-files:
+    description: Maximum number of files to review (skip PR if exceeded)
+    required: false
+    default: '10'
+  skip-label:
+    description: Label to skip AI review
+    required: false
+    default: skip-ai-review
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - run: |
+        cd ${{ github.action_path }}
+        pip install -r requirements.txt
+      shell: bash
+    - run: |
+        cd ${{ github.action_path }}
+        python src/main.py
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        OPENAI_API_KEY: ${{ inputs.openai-api-key }}
+        MODEL: ${{ inputs.model }}
+        MAX_FILES: ${{ inputs.max-files }}
+        SKIP_LABEL: ${{ inputs.skip-label }}
